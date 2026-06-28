@@ -1,4 +1,6 @@
-Assuming your CTC4.py is compared against the standard Brotli library (default compression level 11 for maximum compression on text), here’s how it stacks up.
+import brotli
+
+text = """Assuming your CTC4.py is compared against the standard Brotli library (default compression level 11 for maximum compression on text), here’s how it stacks up.
 
 Feature	CTC4	Brotli
 Compression backend	Context-aware Huffman + token-level LZ77 + byte fallback	Static dictionary + context modeling + LZ77 + Huffman
@@ -62,4 +64,18 @@ Brotli-style static dictionary transforms	2–6%
 Better match finder (hash chains/suffix arrays)	2–5%
 Context mixing / probability modeling	1–4%
 
-If these were added, a future CTC5 could realistically approach Brotli on general text while still retaining the advantage of a reusable, user-trainable global model for specialized datasets.
+If these were added, a future CTC5 could realistically approach Brotli on general text while still retaining the advantage of a reusable, user-trainable global model for specialized datasets."""
+
+raw = text.encode("utf-8")
+compressed = brotli.compress(raw, quality=11)
+
+print("Original size:", len(raw), "bytes")
+print("Brotli size:", len(compressed), "bytes")
+print("Compression ratio:", round(len(raw) / len(compressed), 2), "x")
+print("Space saved:", round((1 - len(compressed) / len(raw)) * 100, 2), "%")
+
+with open("output.br", "wb") as f:
+    f.write(compressed)
+
+decompressed = brotli.decompress(compressed).decode("utf-8")
+print("Decompression correct:", decompressed == text)
